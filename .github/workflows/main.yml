@@ -1,7 +1,6 @@
 name: test
 on:
   push:
-  workflow_dispatch:
 
 jobs:
   matrix:
@@ -22,7 +21,7 @@ jobs:
       matrix:
         cfg: ${{ fromJson(needs.matrix.outputs.matrix) }}
     steps:
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python
         uses: actions/setup-python@v2
         with:
           python-version: 3.8
@@ -48,12 +47,20 @@ jobs:
           CONAN_APPLE_CLANG_VERSIONS: ${{ matrix.cfg.version }}
           GFORTRAN_NAME: gfortran-10
 
-  builder:
+  directory_diff:
     needs: [matrix, setup]
     runs-on: ${{ matrix.cfg.os }}
     strategy:
       matrix:
         cfg: ${{ fromJson(needs.matrix.outputs.matrix) }}
     steps:
-      - run: |
-          echo "${{ matrix.cfg.os }} $CC"
+      - name: checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: folder diff
+        run: |
+          for x in $(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | cut -d/ -f1 | sort -u)
+          do
+            echo $x
+          done
