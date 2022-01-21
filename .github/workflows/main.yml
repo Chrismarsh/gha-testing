@@ -26,11 +26,11 @@ jobs:
 
   runner:
     needs: [matrix, builder]
-    runs-on: ${{ matrix.cfg.os }}
+    runs-on: ${{ matrix.server.os }}
     strategy:
       matrix:
         server: ${{ fromJson(needs.matrix.outputs.matrix) }}
         client: ${{ fromJson(needs.matrix.outputs.matrix) }}
     steps:
       - run: |
-          echo "bin-${{ matrix.cfg.go }}-${{ matrix.cfg.commit }}"
+          echo "bin-${{ matrix.server.go }}-${{ matrix.client.commit }}"
