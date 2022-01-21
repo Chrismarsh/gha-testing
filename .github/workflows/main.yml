@@ -17,31 +17,32 @@ jobs:
           echo "::set-output name=matrix::$TASKS"
 
   setup:
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install yq
-      if: startsWith( matrix.cfg.os, 'macos' )
-      run: | 
-        export PATH="$pythonLocation:$PATH"
-        brew install yq 
+    steps:
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install yq
+        if: startsWith( matrix.cfg.os, 'macos' )
+        run: |
+          export PATH="$pythonLocation:$PATH"
+          brew install yq
 
-    - name: env linux
-      if: startsWith( matrix.cfg.os, 'ubuntu' )
-      uses: allenevans/set-env@v2.0.0
-      with:
-        CONAN_GCC_VERSIONS: ${{ matrix.cfg.version }}
-        CC: gcc-${{ matrix.cfg.version }}
-        CXX: g++-${{ matrix.cfg.version }}
-        GFORTRAN_NAME: gfortran-${{ matrix.cfg.version }}
+      - name: env linux
+        if: startsWith( matrix.cfg.os, 'ubuntu' )
+        uses: allenevans/set-env@v2.0.0
+        with:
+          CONAN_GCC_VERSIONS: ${{ matrix.cfg.version }}
+          CC: gcc-${{ matrix.cfg.version }}
+          CXX: g++-${{ matrix.cfg.version }}
+          GFORTRAN_NAME: gfortran-${{ matrix.cfg.version }}
 
-    - name: env macos
-      if: startsWith( matrix.cfg.os, 'macos' )
-      uses: allenevans/set-env@v2.0.0
-      with:
-        CONAN_APPLE_CLANG_VERSIONS: ${{ matrix.cfg.version }}
-        GFORTRAN_NAME: gfortran-10 # set the name to use for gfortran as we need to use gfotran-<version>
+      - name: env macos
+        if: startsWith( matrix.cfg.os, 'macos' )
+        uses: allenevans/set-env@v2.0.0
+        with:
+          CONAN_APPLE_CLANG_VERSIONS: ${{ matrix.cfg.version }}
+          GFORTRAN_NAME: gfortran-10
 
   builder:
     needs: [matrix, setup]
@@ -52,4 +53,3 @@ jobs:
     steps:
       - run: |
           echo "${{ matrix.cfg.os }} $CC"
-
