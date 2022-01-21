@@ -2,31 +2,32 @@ name: test
 on:
   workflow_dispatch:
 
-matrix:
-  runs-on: ubuntu-latest
-  outputs:
-    matrix: ${{ steps.set-matrix.outputs.matrix }}
-  steps:
-    - uses: actions/checkout@v2
-    - id: set-matrix
-      run: |
-        TASKS=$(echo $(cat .github/workflows/matrix.json) | sed 's/ //g' )
-        echo "::set-output name=matrix::$TASKS"
-builder:
-  needs: [matrix]
-  strategy:
-    matrix:
-      cfg: ${{ fromJson(needs.matrix.outputs.matrix) }}
-  steps:
-    - run: |
-        echo "bin-${{ matrix.cfg.go }}-${{ matrix.cfg.commit }}"
+jobs:
+  matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v2
+      - id: set-matrix
+        run: |
+          TASKS=$(echo $(cat .github/workflows/matrix.json) | sed 's/ //g' )
+          echo "::set-output name=matrix::$TASKS"
+  builder:
+    needs: [matrix]
+    strategy:
+      matrix:
+        cfg: ${{ fromJson(needs.matrix.outputs.matrix) }}
+    steps:
+      - run: |
+          echo "bin-${{ matrix.cfg.go }}-${{ matrix.cfg.commit }}"
 
-runner:
-  needs: [matrix, builder]
-  strategy:
-    matrix:
-      server: ${{ fromJson(needs.matrix.outputs.matrix) }}
-      client: ${{ fromJson(needs.matrix.outputs.matrix) }}
-  steps:
-    - run: |
-        echo "bin-${{ matrix.cfg.go }}-${{ matrix.cfg.commit }}"
+  runner:
+    needs: [matrix, builder]
+    strategy:
+      matrix:
+        server: ${{ fromJson(needs.matrix.outputs.matrix) }}
+        client: ${{ fromJson(needs.matrix.outputs.matrix) }}
+    steps:
+      - run: |
+          echo "bin-${{ matrix.cfg.go }}-${{ matrix.cfg.commit }}"
