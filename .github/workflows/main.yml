@@ -4,11 +4,23 @@ on:
 
 jobs:
 
+  matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - id: set-matrix
+        run: |
+          TASKS=$(echo $(cat .github/workflows/matrix.json) | sed 's/ //g' )
+          echo "::set-output name=matrix::$TASKS"
   setup:
     uses: Chrismarsh/gha-testing/.github/workflows/setup.yml@main
 
   on_push:
-    needs: [setup]
+    needs: [matrix, setup]
     runs-on: ${{ matrix.cfg.os }}
     strategy:
       matrix:
@@ -27,7 +39,7 @@ jobs:
 
 
   directory_diff:
-    needs: [setup]
+    needs: [matrix, setup]
     runs-on: ${{ matrix.cfg.os }}
     strategy:
       matrix:
