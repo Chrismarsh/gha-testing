@@ -18,6 +18,8 @@ jobs:
           echo "::set-output name=matrix::$TASKS"
   setup:
     uses: Chrismarsh/gha-testing/.github/workflows/setup.yml@main
+    with:
+      matrix: matrix
 
   on_push:
     needs: [matrix, setup]
