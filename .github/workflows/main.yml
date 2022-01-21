@@ -8,7 +8,7 @@ jobs:
     uses: Chrismarsh/gha-testing/.github/workflows/setup.yml@main
 
   on_push:
-    needs: [matrix, setup]
+    needs: [setup]
     runs-on: ${{ matrix.cfg.os }}
     strategy:
       matrix:
@@ -27,7 +27,7 @@ jobs:
 
 
   directory_diff:
-    needs: [matrix, setup]
+    needs: [setup]
     runs-on: ${{ matrix.cfg.os }}
     strategy:
       matrix:
