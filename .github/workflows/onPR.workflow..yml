@@ -18,7 +18,7 @@ jobs:
           echo "::set-output name=matrix::$TASKS"
   setup:
     needs: [matrix]
-    runs-on: ${{ inputs.matrix.matrix.cfg.os }}
+    runs-on: ${{ matrix.cfg.os }}
     strategy:
       matrix:
         cfg: ${{ fromJson(needs.matrix.outputs.matrix) }}
@@ -28,25 +28,25 @@ jobs:
         with:
           python-version: 3.8
       - name: Install yq
-        if: startsWith( inputs.matrix.matrix.cfg.os, 'macos' )
+        if: startsWith( matrix.cfg.os, 'macos' )
         run: |
           export PATH="$pythonLocation:$PATH"
           brew install yq
 
       - name: env linux
-        if: startsWith( inputs.matrix.matrix.cfg.os, 'ubuntu' )
+        if: startsWith( matrix.cfg.os, 'ubuntu' )
         uses: allenevans/set-env@v2.0.0
         with:
-          CONAN_GCC_VERSIONS: ${{ inputs.matrix.matrix.cfg.version }}
-          CC: gcc-${{ inputs.matrix.matrix.cfg.version }}
-          CXX: g++-${{ inputs.matrix.matrix.cfg.version }}
-          GFORTRAN_NAME: gfortran-${{ inputs.matrix.matrix.cfg.version }}
+          CONAN_GCC_VERSIONS: ${{ matrix.cfg.version }}
+          CC: gcc-${{ matrix.cfg.version }}
+          CXX: g++-${{ matrix.cfg.version }}
+          GFORTRAN_NAME: gfortran-${{ matrix.cfg.version }}
 
       - name: env macos
-        if: startsWith( inputs.matrix.matrix.cfg.os, 'macos' )
+        if: startsWith( matrix.cfg.os, 'macos' )
         uses: allenevans/set-env@v2.0.0
         with:
-          CONAN_APPLE_CLANG_VERSIONS: ${{ inputs.matrix.matrix.cfg.version }}
+          CONAN_APPLE_CLANG_VERSIONS: ${{ matrix.cfg.version }}
           GFORTRAN_NAME: gfortran-10
 
 
